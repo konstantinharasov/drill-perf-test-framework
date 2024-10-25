@@ -1,5 +1,7 @@
 #!/bin/bash
 
+hostname="$(hostname -f)"
+
 if [ $# -lt 1 ]; then 
 	echo "[ERROR] Insufficient # of params"
 	echo "USAGE: `dirname $0`/$0 <scaleFactor> [maxWidth]"
@@ -47,7 +49,7 @@ for tbl in `cat tpch_tables`; do
     echo "Writing table - $tbl"
 
 #SKIP::alter session set \`planner.width.max_per_node\`=${maxWidthToUse};
-sqlline -u "jdbc:drill:schema=dfs.${schema}"  << EOF  &
+sqlline -u "jdbc:drill:schema=dfs.${schema}:drillbit=$hostname:31010;auth=MAPRSASL"  << EOF  &
 use dfs.${schema};
 create table ${tbl} as select * from dfs.\`/tpchView/SF$scale/${tbl}_csv$scale\`;
 EOF

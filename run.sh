@@ -25,39 +25,41 @@ for queryId in $listOfQueries; do
 	mkdir -p $logdir
 	logFile=$logdir/Q${queryId}.log
 
-	### Restart Drillbits
-	if [[ "$useFreshDrillbit" == "yes" ]] 
-	then
-		echo "[INFO] restarting drillbits ..."
-		clush -a "$DRILL_HOME/bin/drillbit.sh restart"
-		sleep 10
-	fi
+#	### Restart Drillbits
+#	if [[ "$useFreshDrillbit" == "yes" ]]
+#	then
+#		echo "[INFO] restarting drillbits ..."
+#		clush -a "$DRILL_HOME/bin/drillbit.sh restart"
+#		sleep 10
+#	fi
 	
 	### Running a WarmUp query (to load relevant classes into JVM)
-	if [[ "$dbitWarmUp" == "yes" ]]; then
-		echo "select * from sys.options limit 2;" > warmUp.q
-		echo "[INFO] Running a quick warm-up query"
-		java -cp ${DRILL_JDBC_CLASSPATH} -Dtimeout=60 -Dconn="jdbc:drill:schema=${testSchema}" PipSQueak warmUp.q	
-	fi
+#	if [[ "$dbitWarmUp" == "yes" ]]; then
+#		echo "select * from sys.options limit 2;" > warmUp.q
+#		echo "[INFO] Running a quick warm-up query"
+#		java -cp ${DRILL_JDBC_CLASSPATH} -Dtimeout=60 -Dconn="jdbc:drill:schema=${testSchema}" PipSQueak warmUp.q
+#	fi
 	
 	### Cleaning up Caches across the cluster
-	if [[ "$dropCaches" == "yes" ]]; then
-               	echo "[INFO] Cleaning up Caches across the cluster"
-		clush -a "echo 3 > /proc/sys/vm/drop_caches"
-		sleep 15; #Pause
-	fi
+#	if [[ "$dropCaches" == "yes" ]]; then
+#               	echo "[INFO] Cleaning up Caches across the cluster"
+#		clush -a "echo 3 > /proc/sys/vm/drop_caches"
+#		sleep 15; #Pause
+#	fi
 	
 	### Picking up a Random DrillBit for a query (reused over multiple attempts)
-	indx=$RANDOM%`cat drillbits.lst|wc -l`
-	indx=$(( indx + 1 ))
-        selectedDrillbit=`head -$indx drillbits.lst|tail -1`
+#	indx=$RANDOM%`cat drillbits.lst|wc -l`
+#	indx=$(( indx + 1 ))
+#        selectedDrillbit=`head -$indx drillbits.lst|tail -1`
         #selectedDrillbit=10.10.101.111
+        selectedDrillbit=$(hostname -f)
 
 	### TPCH Q15 Hack (as it involves 3 queries)
 	if [[ "$benchmark" == "TPCH" ]] && [[ "$queryId" == "15" ]] ; then
 		#Running The View Creation 1st
 		echo "[INFO] Running create view for TPCH Query 15 ....  "
-		java -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}" PipSQueak $benchmark/Queries/${queryId}a.q | tee -a ${logFile}
+		java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${alterati
+    ons} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}a.q | tee -a ${logFile}
 		sleep 5; #Pause
 	fi
 	
@@ -77,14 +79,17 @@ for queryId in $listOfQueries; do
 			rm -rf 11.q
 			cp TPCH/Queries/11.q 11.q
 			sed -i "s/ScaleFactor/$scaleFactor/" 11.q
-			java -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}" PipSQueak 11.q |tee -a ${logFile}
+			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
+      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak 11.q |tee -a ${logFile}
 			rm -f 11.q
 		elif  [[ "$benchmark" == "TPCDS" ]] && [[ "$queryId" == "49" ]] ; then
 			echo "alter session set \`planner.enable_decimal_data_type\`=true;" > ${alterations}
-			java -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
+			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
+      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
 			rm -f ${alterations}
 		else
-			java -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
+			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
+      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
 		fi
 
 		### Stop tracking Resources, copy the collected stats from remote drillbits and clean up
@@ -100,8 +105,8 @@ for queryId in $listOfQueries; do
 		DrillProfileJsonFile=${logdir}/${PROFILE_ID}_id_${drillQueryId}.json
 		DrillProfileHTMLFile=${logdir}/${PROFILE_ID}_id_${drillQueryId}.html
 
-		wget -q -O $DrillProfileJsonFile http://${selectedDrillbit}:8047/profiles/${drillQueryId}.json
-		wget -q -O $DrillProfileHTMLFile http://${selectedDrillbit}:8047/profiles/${drillQueryId}
+		wget -q -O $DrillProfileJsonFile https://${selectedDrillbit}:8047/profiles/${drillQueryId}.json
+    wget -q -O $DrillProfileHTMLFile https://${selectedDrillbit}:8047/profiles/${drillQueryId}
 		
 		sleep 10; #Pause
 	done
@@ -110,6 +115,7 @@ for queryId in $listOfQueries; do
 	if [[ "$benchmark" == "TPCH" ]] && [[ "$queryId" == "15" ]] ; then
 		#Running The View Deletion Last
 		echo "[INFO] Drop the view for TPCH Query 15 ....  "
-		java -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}" PipSQueak $benchmark/Queries/${queryId}c.q |tee -a ${logFile}
+		java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${alterati
+    ons} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}" PipSQueak $benchmark/Queries/${queryId}c.q |tee -a ${logFile}
 	fi
 done

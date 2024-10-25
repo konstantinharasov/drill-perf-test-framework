@@ -38,7 +38,7 @@ Refer to [Github documentation](https://help.github.com/articles/cloning-a-repos
  4. Edit PerfTestEnv.conf to set needed environmental variables
  5. Edit drillbits.lst to contain all the IPs of the drillbit nodes.
  6. Build the databases  
-   	- Currently the kit includes data generation scripts for TPCH and TPCDS databases and some queries for those benchmark tests. See READMEs in TPCH/datagen and TPCDS/datagen for how to generate data and build database for those tests (only parquet files are implemented now).
+   	- Currently, the kit includes data generation scripts for TPCH and TPCDS databases and some queries for those benchmark tests. See READMEs in TPCH/datagen and TPCDS/datagen for how to generate data and build database for those tests (only parquet files are implemented now).
 	- If database is already built, ensure the connect string and workspaces are defined in storage plugin as specified in utils/dfs.json_Template.
  7. Copy stats collection scripts to remote drillbit nodes
  <pre><code>

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+hostname="$(hostname -f)"
+
 if [ $# -lt 1 ]; then
         echo "[ERROR] Insufficient # of params"
         echo "USAGE: `dirname $0`/$0  <scaleFactor>"
@@ -38,4 +40,4 @@ hadoop fs -mkdir -p /${viewPath}/SF${scaleFactor}
 cp -f createCSVViews_TPCDS_Template.sql createTPCDS_CSVViews-SF$scaleFactor.sql
 sed -i "s|ScaleFactor|$scaleFactor|g" createTPCDS_CSVViews-SF$scaleFactor.sql
 
-sqlline -u "jdbc:drill:schema=dfs.${viewPath}" -f createTPCDS_CSVViews-SF$scaleFactor.sql
+sqlline -u "jdbc:drill:schema=dfs.${viewPath}:drillbit=$hostname:31010;auth=MAPRSASL" -f createTPCDS_CSVViews-SF$scaleFactor.sql
