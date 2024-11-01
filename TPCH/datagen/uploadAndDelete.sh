@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 #Params
 uploadFile=$1
 uploadDest=$2

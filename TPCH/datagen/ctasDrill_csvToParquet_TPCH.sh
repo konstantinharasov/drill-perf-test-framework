@@ -1,14 +1,16 @@
 #!/bin/bash
 
-hostname="$(hostname -f)"
+set -x
+
+source  ../../PerfTestEnv.conf
+
+hostname=$(cat "$TestKitDir"/drillbits.lst)
 
 if [ $# -lt 1 ]; then 
 	echo "[ERROR] Insufficient # of params"
 	echo "USAGE: `dirname $0`/$0 <scaleFactor> [maxWidth]"
 	exit 127
 fi
-
-source  ../../PerfTestEnv.conf
 
 scale=$1
 
@@ -27,13 +29,11 @@ if [ $# -gt 1 ]; then
     maxWidthToUse=$2
 fi
 
-#Check Dir on HDFS
+#Check Dir on HDFS and clean if exists
 schemaExists=`hadoop fs -du -s /${schema}/SF${scale} | awk '{print $1}'`
-if [ $schemaExists ]; then
-	if [ $schemaExists -gt 0 ]; then 
-		echo "[ERROR]: Location has data ($schemaExists bytes): /${schema}/SF${scale}"
-		exit 127
-	fi
+if [ $schemaExists -gt 0 ]; then
+  echo "[INFO]: Removing existing schema at /${schema}/SF${scale}"
+  hadoop fs -rm -r -skipTrash /${schema}/SF${scale}
 fi
 ###
 

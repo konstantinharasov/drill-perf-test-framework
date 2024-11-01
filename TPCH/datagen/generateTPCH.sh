@@ -3,6 +3,8 @@
 # TPCH Raw Data Generation 
 ##############################################################################
 
+set -x
+
 if [ $# -lt 2 ]; then 
 	echo "[ERROR] Insufficient # of params"
 	echo "USAGE: `dirname $0`/$0 <drillbits.lst> <scaleFactor>"
@@ -57,14 +59,13 @@ rm -rf writeData-*.sh
 # Track which node
 counter=0
 
-#Check Dir on HDFS
+#Check Dir on HDFS and remove if it's not empty
 dataExists=`hadoop fs -du -s ${targetVolPath}/SF${scaleFactor} | awk '{print $1}'`
-if [ $dataExists ]; then
-	if [ $dataExists -gt 0 ]; then 
-		echo "[ERROR]: Location has data ("$dataExists" bytes): ${targetVolPath}/SF"${scaleFactor}
-		exit 127
-	fi
+if [ $dataExists -gt 0 ]; then
+  echo "[INFO]: Removing existing data at ${targetVolPath}/SF"${scaleFactor}
+  hadoop fs -rm -r -skipTrash ${targetVolPath}/SF${scaleFactor}
 fi
+
 ###
 #Creating Root Directory (if not existent)
 echo "[INFO] Creating Root Directory (if not existent)"

@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -x
+
 remoteDrillbitList=`clush -g $1 -N hostname -i`
 logDir=$2
 

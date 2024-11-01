@@ -18,7 +18,9 @@ The framework is built for regression testing with focus on query performance. T
 Refer to [Github documentation](https://help.github.com/articles/cloning-a-repository) on how to clone a repository. 
 
 ### Configure test environment
- 1. The test framework requires a distributed file system such as HDFS or MapR-FS to be configured. It also requires that Drill services to be setup on a clustered environment. Refer to [Drill documentation](http://drill.apache.org/docs/installing-drill-in-distributed-mode) for details on how to setup Drill.
+ 1. The test framework requires a distributed file system such as HDFS or MapR-FS to be configured. 
+It also requires that Drill services to be setup on a clustered environment. 
+Refer to [Drill documentation](http://drill.apache.org/docs/installing-drill-in-distributed-mode) for details on how to setup Drill.
  2. Ensure passwordless SSH is enabled among the server nodes in the cluster. 
  3. Ensure the following are installed:
 	- clush

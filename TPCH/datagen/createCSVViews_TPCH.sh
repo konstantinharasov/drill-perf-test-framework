@@ -1,6 +1,10 @@
 #!/bin/bash
 
-hostname="$(hostname -f)"
+set -x
+
+source  ../../PerfTestEnv.conf
+
+hostname=$(cat "$TestKitDir"/drillbits.lst)
 
 if [ $# -lt 1 ]; then 
 	echo "[ERROR] Insufficient # of params"
@@ -9,7 +13,6 @@ if [ $# -lt 1 ]; then
 fi
 
 ##those are the default MapR Drill installation dirs and files, make sure the DRILL_HOME is set correctly
-source  ../../PerfTestEnv.conf
 
 scaleFactor=$1
 viewPath=tpchView
@@ -22,13 +25,11 @@ cat dfs.json_Template|sed "s|scaleFactor|${scaleFactor}|g" > dfs.json
 
 cd $cur_dir
 
-#Check Dir on HDFS
+# Check Dir on HDFS and clean if exists
 viewExists=`hadoop fs -du -s /${viewPath}/SF${scaleFactor} | awk '{print $1}'`
-if [ $viewExists ]; then
-	if [ $viewExists -gt 0 ]; then 
-		echo "[ERROR]: Location has data ($viewExists bytes): /${viewPath}/SF${scaleFactor}"
-		exit 127
-	fi
+if [ $viewExists -gt 0 ]; then
+  echo "[INFO]: Removing existing view at /${viewPath}/SF${scaleFactor}"
+  hadoop fs -rm -r -skipTrash /${viewPath}/SF${scaleFactor}
 fi
 ###
 
