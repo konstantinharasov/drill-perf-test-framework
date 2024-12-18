@@ -73,23 +73,38 @@ for queryId in $listOfQueries; do
 		fi
 
 		### Run Query
+#		echo "[INFO] Running Attempt #$attempt for $benchmark query $queryId ...."
+#		if [[ "$benchmark" == "TPCH" ]] && [[ "$queryId" == "11" ]] ; then
+#			echo "[INFO] TPCH Q11 is ScaleFactor dependent, constructing the query to reflect the ScaleFactor ..."
+#			rm -rf 11.q
+#			cp TPCH/Queries/11.q 11.q
+#			sed -i "s/ScaleFactor/$scaleFactor/" 11.q
+#			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
+#      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak 11.q |tee -a ${logFile}
+#			rm -f 11.q
+#		elif  [[ "$benchmark" == "TPCDS" ]] && [[ "$queryId" == "49" ]] ; then
+#			echo "alter session set \`planner.enable_decimal_data_type\`=true;" > ${alterations}
+#			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
+#      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
+#			rm -f ${alterations}
+#		else
+#		  rm -f ${alterations}
+#			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
+#      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
+#		fi
+
 		echo "[INFO] Running Attempt #$attempt for $benchmark query $queryId ...."
 		if [[ "$benchmark" == "TPCH" ]] && [[ "$queryId" == "11" ]] ; then
 			echo "[INFO] TPCH Q11 is ScaleFactor dependent, constructing the query to reflect the ScaleFactor ..."
 			rm -rf 11.q
 			cp TPCH/Queries/11.q 11.q
 			sed -i "s/ScaleFactor/$scaleFactor/" 11.q
-			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
-      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak 11.q |tee -a ${logFile}
+			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak 11.q |tee -a ${logFile}
 			rm -f 11.q
 		elif  [[ "$benchmark" == "TPCDS" ]] && [[ "$queryId" == "49" ]] ; then
-			echo "alter session set \`planner.enable_decimal_data_type\`=true;" > ${alterations}
-			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
-      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
-			rm -f ${alterations}
+			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
 		else
-			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dalter=${
-      alterations} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
+			java -Ddrill.customAuthFactories=org.apache.drill.exec.rpc.security.maprsasl.MapRSaslFactory -Djava.security.auth.login.config=/opt/mapr/conf/mapr.login.conf -Dzookeeper.saslprovider=com.mapr.security.maprsasl.MaprSaslProvider -Dzookeeper.sasl.client=true -cp ${DRILL_JDBC_CLASSPATH} -Dtimeout=`echo $timeout*60 | bc` -Dconn="jdbc:drill:schema=${testSchema};drillbit=${selectedDrillbit}:31010;auth=MAPRSASL" PipSQueak $benchmark/Queries/${queryId}.q |tee -a ${logFile}
 		fi
 
 		### Stop tracking Resources, copy the collected stats from remote drillbits and clean up

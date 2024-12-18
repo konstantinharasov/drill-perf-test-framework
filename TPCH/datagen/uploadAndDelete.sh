@@ -2,6 +2,8 @@
 
 set -x
 
+echo "THIS IS uploadAndDelete.sh FILEEEEE NOWWWW"
+
 #Params
 uploadFile=$1
 uploadDest=$2
@@ -22,3 +24,4 @@ fi
 #delete the local file (or named pipe)
 rm -f $uploadFile 
 
+echo "END OF uploadAndDelete.sh FILEEEEE!!!!!!!"

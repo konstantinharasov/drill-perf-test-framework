@@ -1,19 +1,19 @@
 use dfs.tpchView;
 
-create or replace  view region_csvScaleFactor as select
+create or replace view region_csvScaleFactor as select
     cast(columns[0] as int) r_regionkey,
     cast(columns[1] as char(25)) r_name,
     cast(columns[2] as varchar(152)) r_comment
 from dfs.`/tpchRaw/SFScaleFactor/region`;
 
-create or replace  view nation_csvScaleFactor as select 
+create or replace view nation_csvScaleFactor as select
     cast(columns[0] as int) n_nationkey,
     cast(columns[1] as char(25)) n_name,
     cast(columns[2] as int) n_regionkey,
     cast(columns[3] as varchar(152)) n_comment
 from dfs.`/tpchRaw/SFScaleFactor/nation`;
 
-create or replace  view part_csvScaleFactor as select
+create or replace view part_csvScaleFactor as select
     cast(columns[0] as bigint) p_partkey,
     cast(columns[1] as varchar(55)) p_name,
     cast(columns[2] as char(25)) p_mfgr,
@@ -25,8 +25,7 @@ create or replace  view part_csvScaleFactor as select
     cast(columns[8] as varchar(23)) p_comment
 from dfs.`/tpchRaw/SFScaleFactor/part`;
 
-
-create or replace  view supplier_csvScaleFactor as select
+create or replace view supplier_csvScaleFactor as select
     cast(columns[0] as bigint) s_suppkey,
     cast(columns[1] as char(25)) s_name,
     cast(columns[2] as varchar(40)) s_address,
@@ -36,7 +35,7 @@ create or replace  view supplier_csvScaleFactor as select
     cast(columns[6] as varchar(101)) s_comment
 from dfs.`/tpchRaw/SFScaleFactor/supplier`;
 
-create or replace  view partsupp_csvScaleFactor as select
+create or replace view partsupp_csvScaleFactor as select
     cast(columns[0] as bigint) ps_partkey,
     cast(columns[1] as bigint) ps_suppkey,
     cast(columns[2] as int) ps_availqty,
@@ -44,8 +43,7 @@ create or replace  view partsupp_csvScaleFactor as select
     cast(columns[4] as varchar(199)) ps_comment
 from dfs.`/tpchRaw/SFScaleFactor/partsupp`;
 
-
-create or replace  view customer_csvScaleFactor as select
+create or replace view customer_csvScaleFactor as select
     cast(columns[0] as bigint) c_custkey,
     cast(columns[1] as char(25)) c_name,
     cast(columns[2] as varchar(40)) c_address,
@@ -56,8 +54,7 @@ create or replace  view customer_csvScaleFactor as select
     cast(columns[7] as varchar(101)) c_comment
 from dfs.`/tpchRaw/SFScaleFactor/customer`;
 
-
-create or replace  view orders_csvScaleFactor as select
+create or replace view orders_csvScaleFactor as select
     cast(columns[0] as bigint) o_orderkey,
     cast(columns[1] as bigint) o_custkey,
     cast(columns[2] as char(1)) o_orderstatus,
@@ -69,8 +66,7 @@ create or replace  view orders_csvScaleFactor as select
     cast(columns[8] as varchar(79)) o_comment
 from dfs.`/tpchRaw/SFScaleFactor/orders`;
 
-
-create or replace  view lineitem_csvScaleFactor as select
+create or replace view lineitem_csvScaleFactor as select
     cast(columns[0] as bigint) l_orderkey,
     cast(columns[1] as bigint) l_partkey,
     cast(columns[2] as bigint) l_suppkey,

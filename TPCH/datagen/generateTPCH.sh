@@ -1,11 +1,9 @@
 #!/bin/bash
 ##############################################################################
-# TPCH Raw Data Generation 
+# TPCH Raw Data Generation
 ##############################################################################
 
-set -x
-
-if [ $# -lt 2 ]; then 
+if [ $# -lt 2 ]; then
 	echo "[ERROR] Insufficient # of params"
 	echo "USAGE: `dirname $0`/$0 <drillbits.lst> <scaleFactor>"
 	exit 127
@@ -13,7 +11,7 @@ fi
 drillbitList=$1
 scaleFactor=$2
 
-### Check for IP List -- which contains the list of IPs for all the nodes for generating data 
+### Check for IP List -- which contains the list of IPs for all the nodes for generating data
 if [ ! -e $drillbitList ]; then
 	echo "[ERROR] IP Source file was not found: "$drillbitList
 	exit 127
@@ -25,7 +23,6 @@ numHosts=`wc -l $drillbitList | cut -f1 -d' '`
 echo "[INFO] Number of clients generating: "$numHosts
 hostList=$(cat $drillbitList | tr "\n" " ")
 hostListArray=( $hostList )
-
 
 ### Check for workload -- a file with one row for a tpc-h table, each row with format <tblCode> <tblName> <#Chunks>
 ## Assume that all the nodes are uniformi. If no existing workload file is found, will generate one now - 
@@ -59,13 +56,6 @@ rm -rf writeData-*.sh
 # Track which node
 counter=0
 
-#Check Dir on HDFS and remove if it's not empty
-dataExists=`hadoop fs -du -s ${targetVolPath}/SF${scaleFactor} | awk '{print $1}'`
-if [ $dataExists -gt 0 ]; then
-  echo "[INFO]: Removing existing data at ${targetVolPath}/SF"${scaleFactor}
-  hadoop fs -rm -r -skipTrash ${targetVolPath}/SF${scaleFactor}
-fi
-
 ###
 #Creating Root Directory (if not existent)
 echo "[INFO] Creating Root Directory (if not existent)"
@@ -79,15 +69,17 @@ for worker in $hostList; do
 	echo "workDir=\`dirname \$0\`"  >> $fileName
 	echo "cd \$workDir"  >> $fileName
 	echo "export DSS_PATH=$remoteGenDir" >> $fileName 
-	echo "MaxParalThreads=\`lscpu|grep \"^CPU(s)\"|awk '{print \$2}'\`"  >> $fileName
+  #echo "MaxParalThreads=\`lscpu|grep \"^CPU(s)\"|awk '{print \$2}'\`"  >> $fileName
+	echo "MaxParalThreads=6"  >> $fileName
 	echo "  "  >> $fileName
 done
 
 ### Generate Workloads
+
 while read line; do
 	params=( $line )
 	#Extracting Parameters
-	#echo ${params[*]}
+	echo ${params[*]}
 	tblCode=${params[0]}
 	tblName=${params[1]}
 	tblParts=${params[2]}
@@ -96,12 +88,12 @@ while read line; do
 	# Assigning workload in round-robin fashion
 	partsDone=1
 	while [ $partsDone -le $tblParts ]; do
-		set -x
+
 		let hostIdx=$counter%$numHosts
 		worker=${hostListArray[$hostIdx]}
-		set +x
-		#echo "write part $partsDone of $tblParts for $tblName (dbgen : $tblCode) on HostID="$worker
-		if [ $tblParts -gt 1 ]; then 
+
+		echo "write part $partsDone of $tblParts for $tblName (dbgen : $tblCode) on HostID="$worker
+		if [ $tblParts -gt 1 ]; then
 			echo "rm -rf $remoteGenDir/${tblName}.tbl.${partsDone}" >> writeData-${worker}.sh
 			echo "mkfifo $remoteGenDir/${tblName}.tbl.${partsDone}" >> writeData-${worker}.sh
 			echo "$remoteGenDir/dbgen -s $scaleFactor -T $tblCode -S $partsDone -C $tblParts -f &" >> writeData-${worker}.sh

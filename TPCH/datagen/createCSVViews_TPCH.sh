@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 source  ../../PerfTestEnv.conf
 
 hostname=$(cat "$TestKitDir"/drillbits.lst)
@@ -28,8 +26,9 @@ cd $cur_dir
 # Check Dir on HDFS and clean if exists
 viewExists=`hadoop fs -du -s /${viewPath}/SF${scaleFactor} | awk '{print $1}'`
 if [ $viewExists -gt 0 ]; then
-  echo "[INFO]: Removing existing view at /${viewPath}/SF${scaleFactor}"
-  hadoop fs -rm -r -skipTrash /${viewPath}/SF${scaleFactor}
+  echo "[INFO]: Directory exists AT /${viewPath}/SF${scaleFactor}"
+  #echo "[INFO]: Removing existing view at /${viewPath}/SF${scaleFactor}"
+  #hadoop fs -rm -r -skipTrash /${viewPath}/SF${scaleFactor}
 fi
 ###
 
@@ -39,6 +38,5 @@ hadoop fs -mkdir -p /${viewPath}/SF${scaleFactor}
 
 cp -f createCSVViews_TPCH_Template.sql createCSVViews-SF$scaleFactor.sql
 sed -i "s|ScaleFactor|$scaleFactor|g" createCSVViews-SF$scaleFactor.sql
-
 
 sqlline -u "jdbc:drill:schema=dfs.${viewPath}:drillbit=$hostname:31010;auth=MAPRSASL" -f createCSVViews-SF$scaleFactor.sql
